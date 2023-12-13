@@ -5,13 +5,14 @@ from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from forms import UserAddForm, LoginForm, MessageForm
+from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm
 from models import db, connect_db, User, Message
 
 load_dotenv()
 
 CURR_USER_KEY = "curr_user"
-# TODO: make global variable for CSRFProtectForm()
+
+
 
 app = Flask(__name__)
 
@@ -34,6 +35,7 @@ def add_user_to_g():
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
+        g.csrf_form = CSRFProtectForm()
 
     else:
         g.user = None
@@ -47,7 +49,7 @@ def do_login(user):
 
 def do_logout():
     """Log out user."""
-
+    # g is available in the template, don't have to pass it in
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
@@ -122,6 +124,20 @@ def logout():
 
     # TODO: IMPLEMENT THIS AND FIX BUG
     # DO NOT CHANGE METHOD ON ROUTE
+
+    if form.validate_on_submit():
+        session.pop(CURR_USER_KEY, None)
+        flash('Succesfully logged out!')
+
+        return redirect('/')
+
+    else:
+        flash("Access unauthorized.", "danger")
+        return redirect('/')
+
+
+
+
 
 
 ##############################################################################
@@ -225,7 +241,8 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
-    # IMPLEMENT THIS
+    # TODO: IMPLEMENT THIS, should redirect to users/profile,
+    # if fails, render form
 
 
 @app.post('/users/delete')
