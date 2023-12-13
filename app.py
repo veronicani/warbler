@@ -133,7 +133,7 @@ def logout():
 
     else:
         # TODO: Removing CSRF token from html and clicking logout
-        # does not flash this message. 
+        # does not flash this message.
         flash("Access unauthorized.", "danger")
         return redirect('/')
 
