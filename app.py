@@ -130,6 +130,7 @@ def logout():
 
     else:
         flash("Access unauthorized.", "danger")
+        # FIXME:
         return redirect('/')
 
 
