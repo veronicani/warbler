@@ -2,8 +2,11 @@ import os
 from dotenv import load_dotenv
 
 from flask import Flask, render_template, request, flash, redirect, session, g
+from flask import url_for
+
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
+from werkzeug.exceptions import Unauthorized
 
 from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm
 from models import db, connect_db, User, Message
@@ -126,11 +129,12 @@ def logout():
         session.pop(CURR_USER_KEY, None)
 
         flash('Succesfully logged out!')
-        return redirect('/')
+        return redirect(url_for('login'))
 
     else:
+        # TODO: Removing CSRF token from html and clicking logout
+        # does not flash this message. 
         flash("Access unauthorized.", "danger")
-        # FIXME:
         return redirect('/')
 
 
@@ -205,7 +209,7 @@ def start_following(follow_id):
 
     Redirect to following page for the current user.
     """
-
+    # TODO: CSRF
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -223,7 +227,7 @@ def stop_following(follow_id):
 
     Redirect to following page for the current for the current user.
     """
-
+    # TODO: CSRF
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -241,6 +245,7 @@ def profile():
 
     # TODO: IMPLEMENT THIS, should redirect to users/profile,
     # if fails, render form
+    # TODO: CSRF
 
 
 @app.post('/users/delete')
@@ -249,7 +254,7 @@ def delete_user():
 
     Redirect to signup page.
     """
-
+    # TODO: CSRF
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -312,9 +317,12 @@ def delete_message(message_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    msg = Message.query.get_or_404(message_id)
-    db.session.delete(msg)
-    db.session.commit()
+    form = g.csrf_form
+
+    if form.validate_on_submit():
+        msg = Message.query.get_or_404(message_id)
+        db.session.delete(msg)
+        db.session.commit()
 
     return redirect(f"/users/{g.user.id}")
 
