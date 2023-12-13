@@ -11,6 +11,7 @@ from models import db, connect_db, User, Message
 load_dotenv()
 
 CURR_USER_KEY = "curr_user"
+# TODO: make global variable for CSRFProtectForm()
 
 app = Flask(__name__)
 
@@ -62,6 +63,7 @@ def signup():
     If the there already is a user with that username: flash message
     and re-present form.
     """
+    # breakpoint()
 
     do_logout()
 
@@ -106,6 +108,7 @@ def login():
             flash(f"Hello, {user.username}!", "success")
             return redirect("/")
 
+# TODO: flash is part of the form.validate if condition. Move into an else statement
         flash("Invalid credentials.", 'danger')
 
     return render_template('users/login.html', form=form)
@@ -117,7 +120,7 @@ def logout():
 
     form = g.csrf_form
 
-    # IMPLEMENT THIS AND FIX BUG
+    # TODO: IMPLEMENT THIS AND FIX BUG
     # DO NOT CHANGE METHOD ON ROUTE
 
 
@@ -186,7 +189,7 @@ def show_followers(user_id):
 def start_following(follow_id):
     """Add a follow for the currently-logged-in user.
 
-    Redirect to following page for the current for the current user.
+    Redirect to following page for the current user.
     """
 
     if not g.user:
