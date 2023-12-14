@@ -46,7 +46,7 @@ def add_user_to_g():
 
 def do_login(user):
     """Log in user."""
-
+    
     session[CURR_USER_KEY] = user.id
 
 
@@ -260,15 +260,18 @@ def delete_user():
 
     Redirect to signup page.
     """
-    # TODO: CSRF
+    
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
+    
+    form = g.csrf_form
 
-    do_logout()
+    if form.validate_on_submit():
+        do_logout()
 
-    db.session.delete(g.user)
-    db.session.commit()
+        db.session.delete(g.user)
+        db.session.commit()
 
     return redirect("/signup")
 
