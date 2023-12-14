@@ -119,6 +119,19 @@ class User(db.Model):
         db.session.add(user)
         return user
 
+    # def update(id, email, image_url, header_image_url, bio, location):
+    #     """Updates user profile"""
+
+    #     user = User.query.get(id)
+    #     user.email = email or user.email
+    #     # user.password = password or user.password
+    #     user.image_url = image_url or user.image_url
+    #     user.email = email or user.email
+    #     user.header_image_url = header_image_url or user.header_image_url
+    #     user.bio = bio or user.bio
+    #     user.location = location or user.location
+
+
     @classmethod
     def authenticate(cls, username, password):
         """Find user with `username` and `password`.

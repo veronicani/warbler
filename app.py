@@ -8,7 +8,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import Unauthorized
 
-from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm
+from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm, UserEditForm
 from models import db, connect_db, User, Message
 
 load_dotenv()
@@ -230,7 +230,7 @@ def stop_following(follow_id):
 
     Redirect to following page for the current user.
     """
-    
+
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -249,27 +249,31 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user.
 
-    If valid, make updates and redirect to the profile page 
+    If valid, make updates and redirect to the profile page
     for the current user.
     """
-    # FIXME: finish profile
+    # FIXME: Step 5, we are at the point of retrieving edit form data,
+    #  and editting the user. Need to authenticate password
+    # TODO: STEP 4 in warbler
+    # TODO: edit.html --> add fields for location, bio, and header image
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    # import UserEditForm
+
     form = UserEditForm()
 
     if form.validate_on_submit():
-        msg = Message(text=form.text.data)
-        g.user.messages.append(msg)
+        g.user.username = request.form["email"]
+        g.user.email = request.form["email"]
+        g.user.image_url = request.form["email"]
+        g.user.header_image_url = request.form["email"]
+        g.user.bio = request.form["email"]
+
         db.session.commit()
 
         return redirect(f"/users/{g.user.id}")
     # render template to show edit.html
-    return render_template('messages/create.html', form=form)
-
-
-    return redirect(f"/users/{g.user.id}/following")
+    return render_template('users/edit.html', form=form)
 
 
 @app.post('/users/delete')
@@ -278,11 +282,11 @@ def delete_user():
 
     Redirect to signup page.
     """
-    
+
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    
+
     form = g.csrf_form
 
     if form.validate_on_submit():
