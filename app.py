@@ -260,33 +260,36 @@ def profile():
     form = UserEditForm()
 
     if form.validate_on_submit():
-
-        user = User.authenticate(
-            form.username.data,
+        print("g.user before authenticate: ", g.user)
+        g.user = User.authenticate(
+            g.user.username,
             form.password.data,
         )
-
-        if user:
-            g.user.username = form.username.data or g.user.username
-            g.user.email = form.email.data or g.user.email
-            g.user.image_url = form.image_url.data or g.user.image_url
-            g.user.header_image_url = (
-                form.header_image_url.data or g.user.header_image_url)
-            g.user.bio = form.bio.data or g.user.bio
-            # Not sure if want ability to edit location - not noted in specs
-            # g.user.location = form.location.data or g.user.location
-
-            db.session.commit()
-            flash(f"Editted profile successfully")
-
-            return redirect(f"/users/{g.user.id}")
-
+        print("g.user after authenticate: ", g.user)
+        if g.user:
+            try:
+                g.user.username = form.username.data or g.user.username
+                g.user.email = form.email.data or g.user.email
+                g.user.image_url = form.image_url.data or g.user.image_url
+                g.user.header_image_url = (
+                    form.header_image_url.data or g.user.header_image_url)
+                g.user.bio = form.bio.data or g.user.bio
+                # Not sure if want ability to edit location - not in specs
+                # g.user.location = form.location.data or g.user.location
+                db.session.commit()
+                
+                flash("Editted profile successfully")
+                return redirect(f"/users/{g.user.id}")
+                
+            except IntegrityError:
+                # NOTE: why does this rollback work for Pending Rollback?
+                # we lost g.user instance during the integrity error
+                db.session.rollback()
+                flash("Username/email already exists.")
         else:
             flash("Invalid credentials. ", 'danger')
-            # return render_template('users/edit.html', form=form)
 
     return render_template('users/edit.html', form=form)
-
 
 @app.post('/users/delete')
 def delete_user():
