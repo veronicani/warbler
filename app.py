@@ -252,7 +252,7 @@ def profile():
     If valid, make updates and redirect to the profile page
     for the current user.
     """
-   
+
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -260,19 +260,31 @@ def profile():
     form = UserEditForm()
 
     if form.validate_on_submit():
-        g.user.username = form.username.data or g.user.username
-        g.user.email = form.email.data or g.user.email
-        g.user.image_url = form.image_url.data or g.user.image_url
-        g.user.header_image_url = (
-            form.header_image_url.data or g.user.header_image_url)
-        g.user.bio = form.bio.data or g.user.bio
-        # Not sure if want ability to edit location - not noted in specs
-        # g.user.location = form.location.data or g.user.location
 
-        db.session.commit()
+        user = User.authenticate(
+            form.username.data,
+            form.password.data,
+        )
 
-        return redirect(f"/users/{g.user.id}")
-    
+        if user:
+            g.user.username = form.username.data or g.user.username
+            g.user.email = form.email.data or g.user.email
+            g.user.image_url = form.image_url.data or g.user.image_url
+            g.user.header_image_url = (
+                form.header_image_url.data or g.user.header_image_url)
+            g.user.bio = form.bio.data or g.user.bio
+            # Not sure if want ability to edit location - not noted in specs
+            # g.user.location = form.location.data or g.user.location
+
+            db.session.commit()
+            flash(f"Editted profile successfully")
+
+            return redirect(f"/users/{g.user.id}")
+
+        else:
+            flash("Invalid credentials.", 'danger')
+            # return render_template('users/edit.html', form=form)
+
     return render_template('users/edit.html', form=form)
 
 
