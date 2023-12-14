@@ -113,8 +113,8 @@ def login():
             flash(f"Hello, {user.username}!", "success")
             return redirect("/")
 
-# TODO: flash is part of the form.validate if condition. Move into an else statement
-        flash("Invalid credentials.", 'danger')
+        else:
+            flash("Invalid credentials.", 'danger')
 
     return render_template('users/login.html', form=form)
 
@@ -214,9 +214,12 @@ def start_following(follow_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    followed_user = User.query.get_or_404(follow_id)
-    g.user.following.append(followed_user)
-    db.session.commit()
+    form = g.csrf_form
+
+    if form.validate_on_submit():
+        followed_user = User.query.get_or_404(follow_id)
+        g.user.following.append(followed_user)
+        db.session.commit()
 
     return redirect(f"/users/{g.user.id}/following")
 

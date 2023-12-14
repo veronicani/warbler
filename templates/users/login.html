@@ -9,7 +9,7 @@
       <h2 class="join-message">Welcome back.</h2>
 
       <form method="POST" id="user_form">
-        {{ form.hidden_tag() }}
+        {{ g.csrf_form.hidden_tag() }}
 
         {% for field in form if field.widget.input_type != 'hidden' %}
           {% for error in field.errors %}
@@ -18,7 +18,7 @@
           {{ field(placeholder=field.label.text, class="form-control") }}
         {% endfor %}
 
-        <button class="btn btn-primary btn-lg">Log in</button>
+        <button class="btn btn-primary btn-lg" type="submit">Log in</button>
       </form>
     </div>
   </div>
