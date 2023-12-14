@@ -209,7 +209,7 @@ def start_following(follow_id):
 
     Redirect to following page for the current user.
     """
-    # TODO: CSRF
+
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -230,14 +230,17 @@ def stop_following(follow_id):
 
     Redirect to following page for the current for the current user.
     """
-    # TODO: CSRF
+    
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    followed_user = User.query.get_or_404(follow_id)
-    g.user.following.remove(followed_user)
-    db.session.commit()
+    form = g.csrf_form
+
+    if form.validate_on_submit():
+        followed_user = User.query.get_or_404(follow_id)
+        g.user.following.remove(followed_user)
+        db.session.commit()
 
     return redirect(f"/users/{g.user.id}/following")
 
