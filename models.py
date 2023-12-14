@@ -132,18 +132,6 @@ class User(db.Model):
     #     user.location = location or user.location
 
     @classmethod
-    def check_if_username_and_email_exist(cls, username, email):
-        """Checks if username and email is unique. Returns True or False."""
-
-        user_check = cls.query.filter_by(username=username).one_or_none()
-        # if username already exists, it returns the user instance
-        email_check = cls.query.filter_by(email=email).one_or_none()
-        # if email already exists, it returns the user instance
-
-        # if both exist, then it returns True
-        return user_check and email_check
-
-    @classmethod
     def authenticate(cls, username, password):
         """Find user with `username` and `password`.
 
