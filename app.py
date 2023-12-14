@@ -46,7 +46,7 @@ def add_user_to_g():
 
 def do_login(user):
     """Log in user."""
-    
+
     session[CURR_USER_KEY] = user.id
 
 
@@ -228,7 +228,7 @@ def start_following(follow_id):
 def stop_following(follow_id):
     """Have currently-logged-in-user stop following this user.
 
-    Redirect to following page for the current for the current user.
+    Redirect to following page for the current user.
     """
     
     if not g.user:
@@ -247,11 +247,29 @@ def stop_following(follow_id):
 
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
-    """Update profile for current user."""
+    """Update profile for current user.
 
-    # TODO: IMPLEMENT THIS, should redirect to users/profile,
-    # if fails, render form
-    # TODO: CSRF
+    If valid, make updates and redirect to the profile page 
+    for the current user.
+    """
+    # FIXME: finish profile
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    # import UserEditForm
+    form = UserEditForm()
+
+    if form.validate_on_submit():
+        msg = Message(text=form.text.data)
+        g.user.messages.append(msg)
+        db.session.commit()
+
+        return redirect(f"/users/{g.user.id}")
+    # render template to show edit.html
+    return render_template('messages/create.html', form=form)
+
+
+    return redirect(f"/users/{g.user.id}/following")
 
 
 @app.post('/users/delete')
