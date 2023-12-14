@@ -33,6 +33,40 @@ class UserAddForm(FlaskForm):
     )
 
 
+class UserEditForm(FlaskForm):
+    """Form for editing a user."""
+
+    email = StringField(
+        '(Optional) E-mail',
+        validators=[Optional(), Email(), Length(max=50)],
+    )
+
+    password = PasswordField(
+        '(Optional) Password',
+        validators=[Optional(), Length(min=6, max=50)],
+    )
+
+    image_url = StringField(
+        '(Optional) Image URL',
+        validators=[Optional(), URL(), Length(max=255)]
+    )
+
+    header_image_url = StringField(
+        '(Optional) Header Image URL',
+        validators=[Optional(), URL(), Length(max=255)]
+    )
+
+    bio = TextAreaField(
+        '(Optional) Bio',
+        validators=[Optional()],
+    )
+
+    location = StringField(
+        '(Optional) Location',
+        validators=[Optional(), Length(max=30)],
+    )
+
+
 class LoginForm(FlaskForm):
     """Login form."""
 
