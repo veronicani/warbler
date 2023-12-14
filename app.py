@@ -252,10 +252,7 @@ def profile():
     If valid, make updates and redirect to the profile page
     for the current user.
     """
-    # FIXME: Step 5, we are at the point of retrieving edit form data,
-    #  and editting the user. Need to authenticate password
-    # TODO: STEP 4 in warbler
-    # TODO: edit.html --> add fields for location, bio, and header image
+   
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -263,16 +260,19 @@ def profile():
     form = UserEditForm()
 
     if form.validate_on_submit():
-        g.user.username = request.form["email"]
-        g.user.email = request.form["email"]
-        g.user.image_url = request.form["email"]
-        g.user.header_image_url = request.form["email"]
-        g.user.bio = request.form["email"]
+        g.user.username = form.username.data or g.user.username
+        g.user.email = form.email.data or g.user.email
+        g.user.image_url = form.image_url.data or g.user.image_url
+        g.user.header_image_url = (
+            form.header_image_url.data or g.user.header_image_url)
+        g.user.bio = form.bio.data or g.user.bio
+        # Not sure if want ability to edit location - not noted in specs
+        # g.user.location = form.location.data or g.user.location
 
         db.session.commit()
 
         return redirect(f"/users/{g.user.id}")
-    # render template to show edit.html
+    
     return render_template('users/edit.html', form=form)
 
 

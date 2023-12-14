@@ -60,7 +60,8 @@ class UserEditForm(FlaskForm):
         '(Optional) Bio',
         validators=[Optional()],
     )
-
+    
+    # Not sure if want ability to edit location - not noted in specs
     # location = StringField(
     #     '(Optional) Location',
     #     validators=[Optional(), Length(max=30)],
