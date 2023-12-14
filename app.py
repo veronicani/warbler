@@ -282,7 +282,7 @@ def profile():
             return redirect(f"/users/{g.user.id}")
 
         else:
-            flash("Invalid credentials.", 'danger')
+            flash("Invalid credentials. ", 'danger')
             # return render_template('users/edit.html', form=form)
 
     return render_template('users/edit.html', form=form)
