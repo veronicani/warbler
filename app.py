@@ -417,3 +417,66 @@ def add_header(response):
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
     response.cache_control.no_store = True
     return response
+
+
+##############################################################################
+# Like Routes
+
+
+@app.get('/users/<int:user_id>/likes')
+def show_likes(user_id):
+    """Show list of people this user is following."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+    return render_template('users/likes.html', user=user)
+
+
+@app.post('/messages/<int:message_id>')
+def start_liking(message_id):
+    """Add a follow for the currently-logged-in user.
+
+    Redirect to following page for the current user.
+    """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    form = g.csrf_form
+
+    if form.validate_on_submit():
+        message = Message.query.get_or_404(message_id)
+        g.user.likes.append(message)
+        db.session.commit()
+
+    return redirect(f"/users/{g.user.id}/likes")
+
+# TODO: Complete the post route for stop_liking
+# TODO: test like relationship with user
+# TODO: Add a button for each message to like and unlike. Grab icon from bootstrap
+# TODO: In profile, add the count for total number of message liked, should direct us to
+# user/user.id/likes page
+
+# @app.post('/users/stop-following/<int:follow_id>')
+# def stop_liking(follow_id):
+#     """Have currently-logged-in-user stop following this user.
+
+#     Redirect to following page for the current user.
+#     """
+
+#     if not g.user:
+#         flash("Access unauthorized.", "danger")
+#         return redirect("/")
+
+#     form = g.csrf_form
+
+#     if form.validate_on_submit():
+#         followed_user = User.query.get_or_404(follow_id)
+#         g.user.following.remove(followed_user)
+#         db.session.commit()
+
+#     return redirect(f"/users/{g.user.id}/following")
