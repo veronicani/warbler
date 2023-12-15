@@ -8,7 +8,8 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import Unauthorized
 
-from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm, UserEditForm
+from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm, \
+                    UserEditForm
 from models import db, connect_db, User, Message
 
 load_dotenv()
@@ -68,7 +69,6 @@ def signup():
     If the there already is a user with that username: flash message
     and re-present form.
     """
-    # breakpoint()
 
     do_logout()
 
@@ -85,7 +85,7 @@ def signup():
             db.session.commit()
 
         except IntegrityError:
-            flash("Username already taken", 'danger')
+            flash("Username/email already taken", 'danger')
             return render_template('users/signup.html', form=form)
 
         do_login(user)
@@ -129,10 +129,10 @@ def logout():
         session.pop(CURR_USER_KEY, None)
 
         flash('Succesfully logged out!')
-        return redirect(url_for('login'))
+        return redirect('/login')
 
     else:
-        # TODO: Removing CSRF token from html and clicking logout
+        # NOTE: Removing CSRF token from html and clicking logout
         # does not flash this message.
         flash("Access unauthorized.", "danger")
         return redirect('/')
@@ -171,6 +171,8 @@ def show_user(user_id):
     """Show user profile."""
 
     if not g.user:
+        # NOTE: Do we want to show this unauthorized to any user 
+        # without an account?
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
@@ -260,12 +262,12 @@ def profile():
     form = UserEditForm()
 
     if form.validate_on_submit():
-        print("g.user before authenticate: ", g.user)
+        
         g.user = User.authenticate(
             g.user.username,
             form.password.data,
         )
-        print("g.user after authenticate: ", g.user)
+        
         if g.user:
             try:
                 g.user.username = form.username.data or g.user.username
@@ -278,7 +280,7 @@ def profile():
                 # g.user.location = form.location.data or g.user.location
                 db.session.commit()
 
-                flash("Editted profile successfully")
+                flash("Edited profile successfully")
                 return redirect(f"/users/{g.user.id}")
 
             except IntegrityError:
@@ -290,6 +292,7 @@ def profile():
             flash("Invalid credentials. ", 'danger')
 
     return render_template('users/edit.html', form=form)
+
 
 @app.post('/users/delete')
 def delete_user():
@@ -307,7 +310,9 @@ def delete_user():
     if form.validate_on_submit():
         do_logout()
 
-        db.session.delete(g.user)
+        messages = g.user.messages
+        print("g.user.messages: ", messages)
+        Message.query.filter(Message.user_id == g.user.id).delete()
         db.session.commit()
 
     return redirect("/signup")
@@ -385,9 +390,9 @@ def homepage():
     - logged in: 100 most recent messages of self & followed_users
     """
 
-    following_ids = [f.id for f in g.user.following]
     if g.user:
         # should give us a list of id's of users that user follows
+        following_ids = [f.id for f in g.user.following]
         messages = (Message
                     .query
                     .filter((Message.user_id.in_(following_ids)) |
