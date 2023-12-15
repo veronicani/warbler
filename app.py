@@ -435,7 +435,7 @@ def show_likes(user_id):
     return render_template('users/likes.html', user=user)
 
 
-@app.post('/messages/<int:message_id>')
+@app.post('/messages/start-like/<int:message_id>')
 def start_liking(message_id):
     """Like the message for the currently-logged-in user.
 
@@ -460,7 +460,7 @@ def start_liking(message_id):
 # TODO: In profile, add the count for total number of message liked, should direct us to
 # user/user.id/likes page
 
-@app.post('/messages/<int:message_id>')
+@app.post('/messages/stop-like/<int:message_id>')
 def stop_liking(message_id):
     """Unlike the message for the currently-logged-in user.
 
