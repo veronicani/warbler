@@ -396,10 +396,6 @@ def homepage():
                     .limit(100)
                     .all())
 
-        print("Messages are:", messages)
-        print("Users following:", g.user.following)
-        # print("Curr user:", g.user)
-        print("user_following ids:", following_ids)
         return render_template('home.html', messages=messages)
 
     else:
