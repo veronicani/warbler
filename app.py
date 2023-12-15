@@ -9,7 +9,8 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import Unauthorized
 
 from forms import UserAddForm, LoginForm, MessageForm, CSRFProtectForm, \
-                    UserEditForm
+    UserEditForm
+
 from models import db, connect_db, User, Message
 
 load_dotenv()
@@ -39,10 +40,15 @@ def add_user_to_g():
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
-        g.csrf_form = CSRFProtectForm()
 
     else:
         g.user = None
+
+
+@app.before_request
+def add_csrf_to_g():
+    """Add a csrf form to Flask global."""
+    g.csrf_form = CSRFProtectForm()
 
 
 def do_login(user):
@@ -171,7 +177,7 @@ def show_user(user_id):
     """Show user profile."""
 
     if not g.user:
-        # NOTE: Do we want to show this unauthorized to any user 
+        # NOTE: Do we want to show this unauthorized to any user
         # without an account?
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -259,35 +265,32 @@ def profile():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    form = UserEditForm()
+    form = UserEditForm(obj=g.user)
 
     if form.validate_on_submit():
-        
+
         g.user = User.authenticate(
             g.user.username,
             form.password.data,
         )
-        
-        if g.user:
-            try:
-                g.user.username = form.username.data or g.user.username
-                g.user.email = form.email.data or g.user.email
-                g.user.image_url = form.image_url.data or g.user.image_url
-                g.user.header_image_url = (
-                    form.header_image_url.data or g.user.header_image_url)
-                g.user.bio = form.bio.data or g.user.bio
-                # Not sure if want ability to edit location - not in specs
-                # g.user.location = form.location.data or g.user.location
-                db.session.commit()
 
+        if g.user:
+            g.user.username = form.username.data or g.user.username
+            g.user.email = form.email.data or g.user.email
+            g.user.image_url = form.image_url.data or g.user.image_url
+            g.user.header_image_url = (
+                form.header_image_url.data or g.user.header_image_url)
+            g.user.bio = form.bio.data or g.user.bio
+
+            try:
+                db.session.commit()
                 flash("Edited profile successfully")
                 return redirect(f"/users/{g.user.id}")
 
             except IntegrityError:
-                # NOTE: why does this rollback work for Pending Rollback?
-                # we lost g.user instance during the integrity error
                 db.session.rollback()
                 flash("Username/email already exists.")
+
         else:
             flash("Invalid credentials. ", 'danger')
 
@@ -313,6 +316,7 @@ def delete_user():
         messages = g.user.messages
         print("g.user.messages: ", messages)
         Message.query.filter(Message.user_id == g.user.id).delete()
+        db.session.delete(g.user)
         db.session.commit()
 
     return redirect("/signup")
@@ -391,7 +395,6 @@ def homepage():
     """
 
     if g.user:
-        # should give us a list of id's of users that user follows
         following_ids = [f.id for f in g.user.following]
         messages = (Message
                     .query
