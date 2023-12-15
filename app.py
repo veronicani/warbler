@@ -425,8 +425,8 @@ def add_header(response):
 
 @app.get('/users/<int:user_id>/likes')
 def show_likes(user_id):
-    """Show list of people this user is following."""
-
+    """Show list of liked messages for this user."""
+    # NOTE: Do we want to be able to look at other users' likes? vs just our own
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
