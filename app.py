@@ -437,9 +437,9 @@ def show_likes(user_id):
 
 @app.post('/messages/<int:message_id>')
 def start_liking(message_id):
-    """Add a follow for the currently-logged-in user.
+    """Like the message for the currently-logged-in user.
 
-    Redirect to following page for the current user.
+    Redirect to likes page for the current user.
     """
 
     if not g.user:

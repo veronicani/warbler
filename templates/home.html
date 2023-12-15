@@ -39,6 +39,14 @@
                 </a>
               </h4>
             </li>
+            <li class="stat">
+              <p class="small">Likes</p>
+              <h4>
+                <a href="/users/{{ g.user.id }}/likes">
+                  {{ g.user.likes | length }}
+                </a>
+              </h4>
+            </li>
           </ul>
         </div>
       </div>
@@ -47,7 +55,7 @@
     <div class="col-lg-6 col-md-8 col-sm-12">
       <ul class="list-group" id="messages">
         <!-- TODO:  use the user's relationship to following, for only those msgs-->
-        {% for msg in messages %} 
+        {% for msg in messages %}
           <li class="list-group-item">
             <a href="/messages/{{ msg.id }}" class="message-link"/>
             <a href="/users/{{ msg.user.id }}">
