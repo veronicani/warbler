@@ -38,7 +38,7 @@
             </form>
             <!-- endif corresponds to line 22 -->
             {% endif %}
-
+            
 
             <!--               Likes                       -->
             {% if g.user.id != message.user.id %}
@@ -56,10 +56,9 @@
             </form>
             {% endif %}
             {% endif %}
-            <p class="single-message">{{ message.text }}</p>
           </div>
           {% endif %}
-
+          <p class="single-message">{{ message.text }}</p>
           <span class="text-muted">
             {{ message.timestamp.strftime('%d %B %Y') }}
           </span>
