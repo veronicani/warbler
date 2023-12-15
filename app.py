@@ -23,7 +23,7 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config['SQLALCHEMY_ECHO'] = False
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
 
@@ -455,28 +455,27 @@ def start_liking(message_id):
 
     return redirect(f"/users/{g.user.id}/likes")
 
-# TODO: Complete the post route for stop_liking
 # TODO: test like relationship with user
 # TODO: Add a button for each message to like and unlike. Grab icon from bootstrap
 # TODO: In profile, add the count for total number of message liked, should direct us to
 # user/user.id/likes page
 
-# @app.post('/users/stop-following/<int:follow_id>')
-# def stop_liking(follow_id):
-#     """Have currently-logged-in-user stop following this user.
+@app.post('/messages/<int:message_id>')
+def stop_liking(message_id):
+    """Unlike the message for the currently-logged-in user.
 
-#     Redirect to following page for the current user.
-#     """
+    Redirect to likes page for the current user.
+    """
 
-#     if not g.user:
-#         flash("Access unauthorized.", "danger")
-#         return redirect("/")
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
-#     form = g.csrf_form
+    form = g.csrf_form
 
-#     if form.validate_on_submit():
-#         followed_user = User.query.get_or_404(follow_id)
-#         g.user.following.remove(followed_user)
-#         db.session.commit()
+    if form.validate_on_submit():
+        message = Message.query.get_or_404(message_id)
+        g.user.likes.remove(message)
+        db.session.commit()
 
-#     return redirect(f"/users/{g.user.id}/following")
+    return redirect(f"/users/{g.user.id}/likes")
