@@ -45,6 +45,13 @@
             {% endif %}
           </div>
           <p class="single-message">{{ message.text }}</p>
+          <form method="POST"
+                action="/messages/{{ message.id }}">
+                {{ g.csrf_form.hidden_tag() }}
+            <button class="btn btn-outline-primary btn-sm" type="submit">
+              Like
+            </button>
+          </form>
           <span class="text-muted">
               {{ message.timestamp.strftime('%d %B %Y') }}
             </span>
