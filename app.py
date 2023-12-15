@@ -277,10 +277,10 @@ def profile():
                 # Not sure if want ability to edit location - not in specs
                 # g.user.location = form.location.data or g.user.location
                 db.session.commit()
-                
+
                 flash("Editted profile successfully")
                 return redirect(f"/users/{g.user.id}")
-                
+
             except IntegrityError:
                 # NOTE: why does this rollback work for Pending Rollback?
                 # we lost g.user instance during the integrity error
@@ -385,13 +385,21 @@ def homepage():
     - logged in: 100 most recent messages of self & followed_users
     """
 
+    following_ids = [f.id for f in g.user.following]
     if g.user:
+        # should give us a list of id's of users that user follows
         messages = (Message
                     .query
+                    .filter((Message.user_id.in_(following_ids)) |
+                            (Message.user_id == g.user.id))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
 
+        print("Messages are:", messages)
+        print("Users following:", g.user.following)
+        # print("Curr user:", g.user)
+        print("user_following ids:", following_ids)
         return render_template('home.html', messages=messages)
 
     else:
