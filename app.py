@@ -202,7 +202,7 @@ def show_following(user_id):
 @app.get('/users/<int:user_id>/followers')
 def show_followers(user_id):
     """Show list of followers of this user."""
-
+    
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
